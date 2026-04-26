@@ -1,6 +1,3 @@
-const API_KEY = '269d55838a9b1ae0348e4e3742960610';
-const API_URL = 'https://api.calil.jp/library/search.php';
-
 const keywordInput = document.getElementById('keyword');
 const searchBtn = document.getElementById('searchBtn');
 const resultsDiv = document.getElementById('results');
@@ -27,11 +24,12 @@ async function search() {
 
     try {
         const response = await fetch(
-            `${API_URL}?appkey=${API_KEY}&keyword=${encodeURIComponent(keyword)}&format=json`
+            `/api/search?keyword=${encodeURIComponent(keyword)}`
         );
 
         if (!response.ok) {
-            throw new Error('APIリクエストに失敗しました');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'APIリクエストに失敗しました');
         }
 
         const data = await response.json();
