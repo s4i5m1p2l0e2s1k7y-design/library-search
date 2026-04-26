@@ -155,3 +155,28 @@ h1 {
         width: 100%;
     }
 }
+
+.result-count {
+    color: #c92a2a;
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #ffe0e0;
+    border-radius: 8px;
+    text-align: center;
+}
+
+select.search-input {
+    cursor: pointer;
+    background: white;
+}
+
+.library-info a {
+    color: #c92a2a;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.library-info a:hover {
+    text-decoration: underline;
+}

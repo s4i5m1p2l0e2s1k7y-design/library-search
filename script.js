@@ -1,21 +1,23 @@
-const keywordInput = document.getElementById('keyword');
+const prefSelect = document.getElementById('pref');
+const cityInput = document.getElementById('city');
 const searchBtn = document.getElementById('searchBtn');
 const resultsDiv = document.getElementById('results');
 const loadingDiv = document.getElementById('loading');
 const errorDiv = document.getElementById('error');
 
 searchBtn.addEventListener('click', search);
-keywordInput.addEventListener('keypress', (e) => {
+cityInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         search();
     }
 });
 
 async function search() {
-    const keyword = keywordInput.value.trim();
+    const pref = prefSelect.value;
+    const city = cityInput.value.trim();
 
-    if (!keyword) {
-        showError('キーワードを入力してください');
+    if (!pref) {
+        showError('都道府県を選択してください');
         return;
     }
 
@@ -23,9 +25,12 @@ async function search() {
     showLoading();
 
     try {
-        const response = await fetch(
-            `/api/search?keyword=${encodeURIComponent(keyword)}`
-        );
+        let url = `/api/search?pref=${encodeURIComponent(pref)}`;
+        if (city) {
+            url += `&city=${encodeURIComponent(city)}`;
+        }
+
+        const response = await fetch(url);
 
         if (!response.ok) {
             const errorData = await response.json();
@@ -47,28 +52,36 @@ function displayResults(data) {
         return;
     }
 
+    const count = data.libraries.length;
+    const headerHtml = `<div class="result-count">${count}件の図書館が見つかりました</div>`;
+
     const html = data.libraries.map(library => {
+        const name = library.formal || library.short || '名称不明';
         const systemName = library.systemname || '情報なし';
-        const pref = library.pref || '';
         const address = library.address || '情報なし';
+        const tel = library.tel || '';
+        const url = library.url_pc || '';
 
         return `
             <div class="library-item">
-                <div class="library-name">${escapeHtml(library.name)}</div>
+                <div class="library-name">${escapeHtml(name)}</div>
                 <div class="library-info">
                     <span class="library-info-label">図書館システム:</span> ${escapeHtml(systemName)}
                 </div>
-                ${pref ? `<div class="library-info">
-                    <span class="library-info-label">都道府県:</span> ${escapeHtml(pref)}
-                </div>` : ''}
                 <div class="library-info">
                     <span class="library-info-label">住所:</span> ${escapeHtml(address)}
                 </div>
+                ${tel ? `<div class="library-info">
+                    <span class="library-info-label">電話:</span> ${escapeHtml(tel)}
+                </div>` : ''}
+                ${url ? `<div class="library-info">
+                    <a href="${escapeHtml(url)}" target="_blank" rel="noopener">公式サイト →</a>
+                </div>` : ''}
             </div>
         `;
     }).join('');
 
-    resultsDiv.innerHTML = html;
+    resultsDiv.innerHTML = headerHtml + html;
 }
 
 function showError(message) {
@@ -90,6 +103,7 @@ function clearMessages() {
 }
 
 function escapeHtml(text) {
+    if (typeof text !== 'string') return '';
     const map = {
         '&': '&amp;',
         '<': '&lt;',
