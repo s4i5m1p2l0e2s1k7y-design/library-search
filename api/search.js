@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
     const { keyword } = req.query;
 
     if (!keyword) {
@@ -22,4 +22,4 @@ export default async function handler(req, res) {
     } catch (error) {
         return res.status(500).json({ error: '検索に失敗しました: ' + error.message });
     }
-}
+};
